@@ -43,25 +43,39 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id).then(setProfile);
+    const initAuth = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('Auth session error:', error);
+        }
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          const profileData = await fetchProfile(session.user.id);
+          setProfile(profileData);
+        }
+      } catch (err) {
+        console.error('Failed to initialize auth:', err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
-    });
+    };
+
+    initAuth();
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      (() => {
+      try {
         setUser(session?.user ?? null);
         if (session?.user) {
-          fetchProfile(session.user.id).then(setProfile);
+          fetchProfile(session.user.id).then(setProfile).catch(err => console.error('Fetch profile error:', err));
         } else {
           setProfile(null);
         }
-      })();
+      } catch (err) {
+        console.error('Auth state change error:', err);
+      }
     });
 
     return () => subscription.unsubscribe();

@@ -1,6 +1,16 @@
 const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
-const REDIRECT_URI = import.meta.env.VITE_SPOTIFY_REDIRECT_URI;
 const USE_DUMMY_DATA = true;
+
+// Dynamic redirect URI based on environment
+const getRedirectUri = (): string => {
+  if (import.meta.env.VITE_SPOTIFY_REDIRECT_URI) {
+    return import.meta.env.VITE_SPOTIFY_REDIRECT_URI;
+  }
+  // Fallback: use current origin
+  return `${window.location.origin}/callback`;
+};
+
+const REDIRECT_URI = getRedirectUri();
 const SCOPES = [
   'user-read-email',
   'user-read-private',

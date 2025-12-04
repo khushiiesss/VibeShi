@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import Landing from './pages/Landing';
 import Callback from './pages/Callback';
 import Discover from './pages/Discover';
@@ -34,29 +35,31 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <PublicRoute>
-                <Landing />
-              </PublicRoute>
-            }
-          />
-          <Route path="/callback" element={<Callback />} />
-          <Route
-            path="/discover"
-            element={
-              <ProtectedRoute>
-                <Discover />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <PublicRoute>
+                  <Landing />
+                </PublicRoute>
+              }
+            />
+            <Route path="/callback" element={<Callback />} />
+            <Route
+              path="/discover"
+              element={
+                <ProtectedRoute>
+                  <Discover />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 
